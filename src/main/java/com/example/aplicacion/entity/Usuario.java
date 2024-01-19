@@ -26,4 +26,14 @@ public class Usuario {
 
     @OneToMany(mappedBy = "usuarioResenias")
     private List<Resenia> resenias = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(name = "role_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"),
+            uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id","role_id"})}
+    )
+    private List<Role> roles;
+
+    private boolean admin;
 }
