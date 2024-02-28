@@ -5,6 +5,7 @@ import com.example.aplicacion.entity.Usuario;
 import com.example.aplicacion.repositories.PeliculaRepository;
 import com.example.aplicacion.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,13 @@ public class PeliculaServiceImpl implements PeliculaService{
     }
 
     @Override
+    public Pelicula findbyNombre(String nombre) {
+        System.out.println(nombre);
+        Optional<Pelicula> peliculaOptional =  peliculaRepository.findByTitulo(nombre);
+        return peliculaOptional.orElseThrow(() -> new PeliculaNotFoundException("Película no encontrada"));
+    }
+
+    @Override
     @Transactional
     public Pelicula save(Pelicula pelicula) {
         return peliculaRepository.save(pelicula);
@@ -44,7 +52,6 @@ public class PeliculaServiceImpl implements PeliculaService{
             peliculaDb.setAutor(pelicula.getAutor());
             peliculaDb.setCategoria(pelicula.getCategoria());
             peliculaDb.setResenias(pelicula.getResenias());
-            peliculaDb.setUsuariosPeliculas(pelicula.getUsuariosPeliculas());
             return Optional.of(peliculaRepository.save(peliculaDb));
         }
         return peliculaOptional;

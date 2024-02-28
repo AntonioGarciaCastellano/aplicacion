@@ -1,58 +1,55 @@
 package com.example.aplicacion.services;
 
+import com.example.aplicacion.entity.Role;
 import com.example.aplicacion.entity.Usuario;
+import com.example.aplicacion.repositories.RoleRepository;
 import com.example.aplicacion.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService{
+    @Autowired
+    UsuarioRepository userRepository;
 
     @Autowired
-    private UsuarioRepository usuarioRepository;
+    RoleRepository roleRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
     @Override
     @Transactional(readOnly = true)
     public List<Usuario> findAll() {
-        return  usuarioRepository.findAll();
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Optional<Usuario> findById(Long id) {
-        return usuarioRepository.findById(id);
+        return userRepository.findAll();
     }
 
     @Override
     @Transactional
-    public Usuario save(Usuario usuario) {
-        return usuarioRepository.save(usuario);
-    }
-
-    @Override
-    @Transactional
-    public Optional <Usuario> update(Long id, Usuario usuario) {
-        Optional <Usuario> usuarioOptional = usuarioRepository.findById(id);
-        if(usuarioOptional.isPresent()){
-            Usuario usuarioDb = usuarioOptional.orElseThrow();
-            usuarioDb.setNombre(usuario.getNombre());
-            usuarioDb.setContrasenia(usuario.getContrasenia());
-            usuarioDb.setPeliculas(usuario.getPeliculas());
-            usuarioDb.setResenias(usuario.getResenias());
-            return Optional.of(usuarioRepository.save(usuarioDb));
+    public Usuario save(Usuario user) {
+        Optional<Role> optionalRoleUser = roleRepository.findByName("ROLE_USER");
+        List <Role> roles = new ArrayList<>();
+        optionalRoleUser.ifPresent(roles::add);
+        if(user.isAdmin()){
+            Optional<Role> optionalRoleAdmin = roleRepository.findByName("ROLE_ADMIN");
+            optionalRoleAdmin.ifPresent(roles::add);
         }
-        return usuarioOptional;
+        user.setRoles(roles);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        return userRepository.save(user);
     }
 
     @Override
     @Transactional
-    public Optional<Usuario> delete(Long id) {
-        Optional <Usuario> usuarioOptional = usuarioRepository.findById(id);
-        usuarioOptional.ifPresent( usuarioDb -> usuarioRepository.delete(usuarioDb));
-        return usuarioOptional;
+    public Usuario findbyNombre(String nombre) {
+        Optional<Usuario> usuarioOptional = userRepository.findByUsername(nombre);
+        return usuarioOptional.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
     }
 }

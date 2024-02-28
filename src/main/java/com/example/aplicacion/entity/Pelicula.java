@@ -1,5 +1,6 @@
 package com.example.aplicacion.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -18,17 +19,11 @@ public class Pelicula {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String Titulo;
+    private String titulo;
     private String Autor;
     private String Categoria;
 
-    @ManyToMany
-    @JoinTable(name = "usuario_peliculas",
-            joinColumns = @JoinColumn(name = "id_pelicula", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "id_usuario", referencedColumnName = "id")
-    )
-    private List<Usuario> UsuariosPeliculas = new ArrayList<>();
-
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @OneToMany(mappedBy = "pelicula")
     private List<Resenia> resenias = new ArrayList<>();
 

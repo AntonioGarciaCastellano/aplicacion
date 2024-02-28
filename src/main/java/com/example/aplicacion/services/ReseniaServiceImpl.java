@@ -53,4 +53,5 @@ public class ReseniaServiceImpl implements ReseniaService {
         reseniaOptional.ifPresent( reseniaDb -> reseniaRepository.delete(reseniaDb));
         return reseniaOptional;
     }
+
 }

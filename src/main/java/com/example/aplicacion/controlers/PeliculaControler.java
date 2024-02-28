@@ -2,6 +2,7 @@ package com.example.aplicacion.controlers;
 
 import com.example.aplicacion.entity.Pelicula;
 import com.example.aplicacion.services.PeliculaService;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,13 @@ public class PeliculaControler {
     @Autowired
     private PeliculaService peliculaService;
 
+    @Operation(summary = "obtiene una lista de todas las peliculas")
     @GetMapping
     public List<Pelicula> list(){
         return peliculaService.findAll();
     }
+
+    @Operation(summary = "obtiene una pelicula cuya id sea pasada por parametro")
     @GetMapping("/{id}")
     public ResponseEntity<Pelicula> view(@PathVariable Long id){
         Optional<Pelicula> peliculaOptional = peliculaService.findById(id);
@@ -32,15 +36,16 @@ public class PeliculaControler {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "crea la pelicula")
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Pelicula pelicula, BindingResult result){
-
         if (result.hasFieldErrors()) {
             return validation(result);
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(peliculaService.save(pelicula));
     }
 
+    @Operation(summary = "modifica los valores de la pelicula pasada por parametro")
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable Long id, @RequestBody Pelicula pelicula, BindingResult result){
 
@@ -55,6 +60,7 @@ public class PeliculaControler {
         return ResponseEntity.notFound().build();
     }
 
+    @Operation(summary = "borra la pelicula pasada por parametro")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable Long id){
         Optional<Pelicula> peliculaOptional = peliculaService.delete(id);
